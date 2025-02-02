@@ -1,40 +1,26 @@
-const express = require("express");
-const fs = require("fs");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-
+const express = require('express');
 const app = express();
-const PORT = 3000;
+const port = process.env.PORT || 3000;
 
-app.get("/", (req, res) => {
-    res.send("Quiz API is running!");
+// Middleware to parse incoming JSON requests
+app.use(express.json());
+
+// Route to handle saving user data
+app.post('/save-data', (req, res) => {
+  const { username, score } = req.body;
+  
+  if (!username || !score) {
+    return res.status(400).json({ error: 'Username and score are required' });
+  }
+
+  // Process and store the data (this is just a log for now)
+  console.log(`Received data: Username: ${username}, Score: ${score}`);
+  
+  // Here you can integrate with a database or other storage system.
+  
+  res.status(200).json({ message: 'Data saved successfully' });
 });
 
-
-// Middleware
-app.use(cors()); // Allow frontend requests
-app.use(bodyParser.json()); // Parse JSON data
-
-// Handle Quiz Data Submission
-app.post("/submit-quiz", (req, res) => {
-    const quizData = req.body; // Get quiz data from frontend
-
-    // Read existing data
-    let storedData = [];
-    if (fs.existsSync("quizData.json")) {
-        storedData = JSON.parse(fs.readFileSync("quizData.json"));
-    }
-
-    // Add new quiz data
-    storedData.push(quizData);
-
-    // Save to JSON file
-    fs.writeFileSync("quizData.json", JSON.stringify(storedData, null, 2));
-
-    res.json({ message: "Quiz data saved successfully!" });
-});
-
-// Start Server
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
 });
